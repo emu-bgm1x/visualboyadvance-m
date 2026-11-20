@@ -145,6 +145,11 @@ static constexpr std::array<Option::Type, kNbOptions> kOptionsTypes = {
     /*kSoundDSoundHWAccel*/ Option::Type::kBool,
     /*kSoundUpmix*/ Option::Type::kBool,
     /*kSoundVolume*/ Option::Type::kInt,
+    /*kSoundFfbgmBgm1x*/ Option::Type::kBool,
+    /*kSoundFfbgmFfCutscenes*/ Option::Type::kBool,
+    /*kSoundFfbgmSfx1x*/ Option::Type::kBool,
+    /*kSoundFfbgmSfxVolume*/ Option::Type::kInt,
+    /*kSoundFfbgmRamSongs*/ Option::Type::kBool,
     /*kLocale*/ Option::Type::kInt,
     /*kExternalTranslations*/ Option::Type::kBool,
 };

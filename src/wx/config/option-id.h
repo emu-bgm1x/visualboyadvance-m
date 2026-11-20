@@ -141,6 +141,11 @@ enum class OptionID {
     kSoundDSoundHWAccel,
     kSoundUpmix,
     kSoundVolume,
+    kSoundFfbgmBgm1x,
+    kSoundFfbgmFfCutscenes,
+    kSoundFfbgmSfx1x,
+    kSoundFfbgmSfxVolume,
+    kSoundFfbgmRamSongs,
     kLocale,
     kExternalTranslations,
 
