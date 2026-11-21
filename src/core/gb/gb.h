@@ -22,6 +22,10 @@ typedef union {
 } gbRegister;
 
 extern gbRegister AF, BC, DE, HL, SP, PC;
+// ff-bgm1x: sound driver tracing hooks (NULL = off)
+extern void (*ffbgmGbFetch)(uint16_t pc, uint8_t opcode);
+extern void (*ffbgmGbIrq)(uint16_t returnPc);
+extern void (*ffbgmGbStore)(uint16_t address, uint8_t value);
 extern uint16_t IFF;
 
 // Attempts to load the ROM file at `filename`. Returns true on success.

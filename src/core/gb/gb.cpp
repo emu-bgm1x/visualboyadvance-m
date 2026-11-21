@@ -514,6 +514,10 @@ gbRegister AF;
 gbRegister BC;
 gbRegister DE;
 gbRegister HL;
+// ff-bgm1x: sound driver tracing hooks (NULL = off): instruction fetch, interrupt entry, memory write
+void (*ffbgmGbFetch)(uint16_t pc, uint8_t opcode) = nullptr;
+void (*ffbgmGbIrq)(uint16_t returnPc) = nullptr;
+void (*ffbgmGbStore)(uint16_t address, uint8_t value) = nullptr;
 uint16_t IFF = 0;
 // 0xff04
 uint8_t register_DIV = 0;
@@ -1340,6 +1344,8 @@ void gbCompareLYToLYC()
 
 void gbWriteMemory(uint16_t address, uint8_t value)
 {
+    if (ffbgmGbStore)
+        ffbgmGbStore(address, value);
 
     if (address < 0x8000) {
 #ifndef FINAL_VERSION
@@ -2447,44 +2453,59 @@ uint8_t gbReadMemory(uint16_t address)
 
 void gbVblank_interrupt()
 {
+    const uint16_t ffbgmRet = PC.W;
     gbCheatWrite(false); // Emulates GS codes.
     gbMemory[0xff0f] = register_IF &= 0xfe;
     gbWriteMemory(--SP.W, PC.B.B1);
     gbWriteMemory(--SP.W, PC.B.B0);
     PC.W = 0x40;
+    if (ffbgmGbIrq)
+        ffbgmGbIrq(ffbgmRet);
 }
 
 void gbLcd_interrupt()
 {
+    const uint16_t ffbgmRet = PC.W;
     gbCheatWrite(false); // Emulates GS codes.
     gbMemory[0xff0f] = register_IF &= 0xfd;
     gbWriteMemory(--SP.W, PC.B.B1);
     gbWriteMemory(--SP.W, PC.B.B0);
     PC.W = 0x48;
+    if (ffbgmGbIrq)
+        ffbgmGbIrq(ffbgmRet);
 }
 
 void gbTimer_interrupt()
 {
+    const uint16_t ffbgmRet = PC.W;
     gbMemory[0xff0f] = register_IF &= 0xfb;
     gbWriteMemory(--SP.W, PC.B.B1);
     gbWriteMemory(--SP.W, PC.B.B0);
     PC.W = 0x50;
+    if (ffbgmGbIrq)
+        ffbgmGbIrq(ffbgmRet);
 }
 
 void gbSerial_interrupt()
 {
+    const uint16_t ffbgmRet = PC.W;
     gbMemory[0xff0f] = register_IF &= 0xf7;
     gbWriteMemory(--SP.W, PC.B.B1);
     gbWriteMemory(--SP.W, PC.B.B0);
     PC.W = 0x58;
+    if (ffbgmGbIrq)
+        ffbgmGbIrq(ffbgmRet);
 }
 
 void gbJoypad_interrupt()
 {
+    const uint16_t ffbgmRet = PC.W;
     gbMemory[0xff0f] = register_IF &= 0xef;
     gbWriteMemory(--SP.W, PC.B.B1);
     gbWriteMemory(--SP.W, PC.B.B0);
     PC.W = 0x60;
+    if (ffbgmGbIrq)
+        ffbgmGbIrq(ffbgmRet);
 }
 
 void gbSpeedSwitch()
@@ -4164,6 +4185,8 @@ void gbEmulate(int ticksToStop)
             execute = true;
 
             opcode2 = opcode1 = opcode = gbReadMemory(PC.W++);
+            if (ffbgmGbFetch)
+                ffbgmGbFetch(PC.W - 1, opcode);
 
             // If HALT state was launched while IME = 0 and (register_IF & register_IE & 0x1F),
             // PC.W is not incremented for the first byte of the next instruction.
